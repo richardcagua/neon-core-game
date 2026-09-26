@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Core - Playable Game</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050510;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none; /* Evita zoom y scroll en móviles */
+        }
+        canvas {
+            display: block;
+        }
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #scoreBoard {
+            position: absolute;
+            top: 20px;
+            font-size: 32px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ffff;
+        }
+        #menu {
+            text-align: center;
+            pointer-events: auto;
+            background: rgba(5, 5, 16, 0.85);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+        }
+        h1 {
+            color: #00ffff;
+            margin: 0 0 10px 0;
+            font-size: 48px;
+            text-shadow: 0 0 20px #00ffff;
+            letter-spacing: 2px;
+        }
+        p {
+            color: #a0a0ff;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        button {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #ff00ff;
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+        }
+        button:hover {
+            background: #ff00ff;
+            color: #000;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui">
+        <div id="scoreBoard" class="hidden">0</div>
+        
+        <div id="menu">
+            <h1 id="title">NEON CORE</h1>
+            <p id="subtitle">Toca la pantalla para cambiar de dirección<br>Esquiva el Rojo, Atrapa el Amarillo</p>
+            <button id="startBtn">JUGAR</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuración básica del Canvas
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const uiMenu = document.getElementById('menu');
+        const scoreBoard = document.getElementById('scoreBoard');
+        const startBtn = document.getElementById('startBtn');
+        const title = document.getElementById('title');
+
+        let width, height, cx, cy;
+        
+        // Variables de Juego
+        let gameState = 'MENU'; // MENU, PLAYING, GAMEOVER
+        let score = 0;
+        let animationId;
+        let frameCount = 0;
+        let gameSpeed = 1;
+
+        // Jugador
+        let player = {
+            angle: 0,
+            orbitRadius: 100,
+            size: 12,
+            speed: 0.05,
+            direction: 1 // 1 o -1
+        };
+
+        // Entidades
+        let entities = [];
+        let particles = [];
+
+        // Ajuste de pantalla responsivo
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            cx = width / 2;
+            cy = height / 2;
+            
+            // Ajustar radio de órbita para móviles
+            player.orbitRadius = Math.min(width, height) * 0.25;
+            if(player.orbitRadius < 80) player.orbitRadius = 80;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Inicializar Juego
+        function initGame() {
+            score = 0;
+            scoreBoard.innerText = score;
+            gameSpeed = 1;
+            player.angle = 0;
+            player.direction = 1;
+            entities = [];
+            particles = [];
+            gameState = 'PLAYING';
+            
+            uiMenu.classList.add('hidden');
+            scoreBoard.classList.remove('hidden');
+        }
+
+        // Finalizar Juego
+        function gameOver() {
+            gameState = 'GAMEOVER';
+            uiMenu.classList.remove('hidden');
+            scoreBoard.classList.add('hidden');
+            title.innerText = "¡CHOQUE!";
+            title.style.color = "#ff0055";
+            title.style.textShadow = "0 0 20px #ff0055";
+            document.getElementById('subtitle').innerText = "Puntuación Final: " + score;
+            
+            createExplosion(cx + Math.cos(player.angle) * player.orbitRadius, cy + Math.sin(player.angle) * player.orbitRadius, "#00ffff");
+        }
+
+        // Controles: Tocar pantalla invierte dirección
+        function handleInput(e) {
+            e.preventDefault();
+            if (gameState === 'PLAYING') {
+                player.direction *= -1;
+                // Efecto de partículas al cambiar dirección
+                createParticles(
+                    cx + Math.cos(player.angle) * player.orbitRadius, 
+                    cy + Math.sin(player.angle) * player.orbitRadius, 
+                    "#ffffff", 5
+                );
+            }
+        }
+        
+        // Soportar toque y clic
+        canvas.addEventListener('mousedown', handleInput);
+        canvas.addEventListener('touchstart', handleInput, {passive: false});
+
+        startBtn.addEventListener('click', () => {
+            if (gameState !== 'PLAYING') initGame();
+        });
+
+        // Creador de Entidades (Peligros y Puntos)
+        function spawnEntity() {
+            // Aumentar dificultad
+            if (frameCount % 600 === 0) gameSpeed += 0.15;
+
+            // Frecuencia de aparición (más rápido según avanza el juego)
+            let spawnRate = Math.max(30, 90 - (gameSpeed * 10));
+
+            if (frameCount % Math.floor(spawnRate) === 0) {
+                const angle = Math.random() * Math.PI * 2;
+                // Aparecen fuera de la pantalla
+                const distance = Math.max(width, height) + 50; 
+                const isGood = Math.random() < 0.3; // 30% probabilidad de ser punto (amarillo)
+
+                entities.push({
+                    x: cx + Math.cos(angle) * distance,
+                    y: cy + Math.sin(angle) * distance,
+                    angle: angle,
+                    distance: distance,
+                    size: isGood ? 10 : 14,
+                    color: isGood ? "#ffff00" : "#ff0055",
+                    type: isGood ? "good" : "bad",
+                    speed: (isGood ? 2 : 2.5) * gameSpeed,
+                    active: true
+                });
+            }
+        }
+
+        // Efectos Visuales (Partículas)
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 1,
+                    color: color
+                });
+            }
+        }
+
+        function createExplosion(x, y, color) {
+            createParticles(x, y, color, 30);
+        }
+
+        // Bucle Principal
+        function update() {
+            if (gameState === 'PLAYING') {
+                frameCount++;
+                
+                // Mover jugador
+                player.angle += player.speed * player.direction * gameSpeed;
+                
+                // Generar entidades
+                spawnEntity();
+
+                // Actualizar entidades
+                for (let i = entities.length - 1; i >= 0; i--) {
+                    let e = entities[i];
+                    
+                    // Mover hacia el centro
+                    e.distance -= e.speed;
+                    e.x = cx + Math.cos(e.angle) * e.distance;
+                    e.y = cy + Math.sin(e.angle) * e.distance;
+
+                    // Posición actual del jugador
+                    let px = cx + Math.cos(player.angle) * player.orbitRadius;
+                    let py = cy + Math.sin(player.angle) * player.orbitRadius;
+
+                    // Colisión
+                    let distToPlayer = Math.hypot(e.x - px, e.y - py);
+                    if (distToPlayer < e.size + player.size) {
+                        if (e.type === 'good') {
+                            score += 10;
+                            scoreBoard.innerText = score;
+                            createParticles(e.x, e.y, e.color, 15);
+                            e.active = false;
+                        } else {
+                            gameOver();
+                        }
+                    }
+
+                    // Absorción por el núcleo
+                    if (e.distance < 20) {
+                        if (e.type === 'bad' && gameState === 'PLAYING') {
+                            // Efecto núcleo absorbe maldad
+                            createParticles(cx, cy, "#ff0055", 5);
+                        }
+                        e.active = false;
+                    }
+
+                    if (!e.active) entities.splice(i, 1);
+                }
+            }
+
+            // Actualizar Partículas
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.02;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        function draw() {
+            // Efecto de rastro (Motion Blur)
+            ctx.fillStyle = 'rgba(5, 5, 16, 0.25)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Dibujar Núcleo
+            ctx.beginPath();
+            ctx.arc(cx, cy, 25 + Math.sin(frameCount * 0.1) * 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#000';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#00ffff';
+            ctx.stroke();
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#00ffff';
+            ctx.stroke();
+            ctx.shadowBlur = 0; // Reset
+
+            // Dibujar Entidades
+            entities.forEach(e => {
+                ctx.beginPath();
+                ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+                ctx.fillStyle = e.color;
+                ctx.fill();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = e.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            // Dibujar Jugador
+            if (gameState !== 'GAMEOVER') {
+                let px = cx + Math.cos(player.angle) * player.orbitRadius;
+                let py = cy + Math.sin(player.angle) * player.orbitRadius;
+                
+                ctx.beginPath();
+                ctx.arc(px, py, player.size, 0, Math.PI * 2);
+                ctx.fillStyle = '#00ffff';
+                ctx.fill();
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#00ffff';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Línea de órbita (opcional, ayuda visual)
+                ctx.beginPath();
+                ctx.arc(cx, cy, player.orbitRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Dibujar Partículas
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3 * p.life, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1; // Reset
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // Iniciar rastro en el menú
+        gameLoop();
+
+    </script>
+</body>
+</html>
