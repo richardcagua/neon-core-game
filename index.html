@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Core - Playable Game</title>
+    <title>Neon Core - Classic Temple Edition</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&display=swap');
+
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #050510;
+            background-color: #03030a;
             overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            touch-action: none; /* Evita zoom y scroll en móviles */
+            font-family: 'Cinzel', 'Georgia', serif;
+            touch-action: none;
         }
         canvas {
             display: block;
@@ -32,50 +34,121 @@
         }
         #scoreBoard {
             position: absolute;
-            top: 20px;
-            font-size: 32px;
-            color: #fff;
-            font-weight: bold;
-            text-shadow: 0 0 10px #00ffff;
+            top: 25px;
+            font-size: 36px;
+            color: #ffd700;
+            font-weight: 900;
+            text-shadow: 0 0 10px #ffd700, 2px 2px 4px #000;
+            letter-spacing: 3px;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 5px;
         }
+        #levelDisplay {
+            position: absolute;
+            top: 75px;
+            font-size: 18px;
+            color: #00ffff;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px #00ffff;
+        }
+        
+        /* Botón estilo Arquitectura Clásica */
+        #wildcardBtn {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            pointer-events: auto;
+            background: linear-gradient(135deg, #1a1608 0%, #3a2e10 50%, #1a1608 100%);
+            color: #f7e7a1;
+            border: 3px double #d4af37;
+            outline: 1px solid #aa820a;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.3), 0 0 15px rgba(212, 175, 55, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        #wildcardBtn:hover {
+            background: linear-gradient(135deg, #d4af37 0%, #fff2a1 50%, #d4af37 100%);
+            color: #0f0a00;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.9);
+            transform: translateY(-2px);
+        }
+        #wildcardBtn:disabled {
+            border-color: #444;
+            outline-color: #222;
+            color: #666;
+            background: #111;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Menú Estilo Frontón / Templo Griego */
         #menu {
             text-align: center;
             pointer-events: auto;
-            background: rgba(5, 5, 16, 0.85);
-            padding: 40px;
-            border-radius: 20px;
-            border: 2px solid #00ffff;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            background: linear-gradient(180deg, rgba(20, 16, 8, 0.95) 0%, rgba(5, 5, 16, 0.95) 100%);
+            padding: 45px 55px;
+            border: 3px double #d4af37;
+            outline: 2px solid #55400a;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.35), inset 0 0 30px rgba(212, 175, 55, 0.15);
+            position: relative;
+            max-width: 85%;
+        }
+        #menu::before {
+            content: '🏛️';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            background: #03030a;
+            padding: 0 15px;
+            border: 1px solid #d4af37;
+            color: #ffd700;
         }
         h1 {
-            color: #00ffff;
-            margin: 0 0 10px 0;
+            color: #f7e7a1;
+            margin: 10px 0 10px 0;
             font-size: 48px;
-            text-shadow: 0 0 20px #00ffff;
-            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.6), 2px 2px 4px #000;
+            letter-spacing: 5px;
+            font-weight: 900;
         }
         p {
-            color: #a0a0ff;
-            font-size: 18px;
-            margin-bottom: 30px;
+            color: #c0b080;
+            font-size: 17px;
+            margin-bottom: 35px;
+            line-height: 1.6;
+            letter-spacing: 1px;
         }
-        button {
-            background: transparent;
-            color: #fff;
-            border: 2px solid #ff00ff;
-            padding: 15px 40px;
-            font-size: 24px;
+        .main-btn {
+            background: linear-gradient(135deg, #2b200a 0%, #523f15 50%, #2b200a 100%);
+            color: #f7e7a1;
+            border: 2px solid #ffd700;
+            outline: 2px solid #8c6a15;
+            padding: 16px 48px;
+            font-size: 22px;
+            font-family: 'Cinzel', serif;
             font-weight: bold;
-            border-radius: 50px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             text-transform: uppercase;
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2);
+            letter-spacing: 3px;
+            text-shadow: 1px 1px 3px #000;
         }
-        button:hover {
-            background: #ff00ff;
-            color: #000;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+        .main-btn:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #fff5c0 50%, #ffd700 100%);
+            color: #1a1000;
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.9);
+            transform: scale(1.05);
         }
         .hidden {
             display: none !important;
@@ -87,47 +160,224 @@
     <canvas id="gameCanvas"></canvas>
     
     <div id="ui">
-        <div id="scoreBoard" class="hidden">0</div>
+        <div id="scoreBoard" class="hidden">0 / 200</div>
+        <div id="levelDisplay" class="hidden">NIVEL 1</div>
+        <button id="wildcardBtn" class="hidden">⚡ COMODÍN (1)</button>
         
         <div id="menu">
             <h1 id="title">NEON CORE</h1>
-            <p id="subtitle">Toca la pantalla para cambiar de dirección<br>Esquiva el Rojo, Atrapa el Amarillo</p>
-            <button id="startBtn">JUGAR</button>
+            <p id="subtitle">Toca la pantalla para cambiar de dirección<br>Alcanza 200 Puntos para conquistar el nivel</p>
+            <button id="startBtn" class="main-btn">INICIAR</button>
         </div>
     </div>
 
     <script>
-        // Configuración básica del Canvas
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const uiMenu = document.getElementById('menu');
         const scoreBoard = document.getElementById('scoreBoard');
+        const levelDisplay = document.getElementById('levelDisplay');
+        const wildcardBtn = document.getElementById('wildcardBtn');
         const startBtn = document.getElementById('startBtn');
         const title = document.getElementById('title');
 
         let width, height, cx, cy;
         
-        // Variables de Juego
-        let gameState = 'MENU'; // MENU, PLAYING, GAMEOVER
+        let gameState = 'MENU'; // MENU, PLAYING, LEVEL_WIN, GAMEOVER
+        let currentLevel = 1;
         let score = 0;
-        let animationId;
+        let targetScore = 200;
         let frameCount = 0;
         let gameSpeed = 1;
 
-        // Jugador
+        // Sistema de Comodín y Escudo
+        let wildcards = 1;
+        let shieldTime = 0;
+
+        // Cámara
+        let cameraScale = 1.0;
+        let targetScale = 1.0;
+        let shakeTime = 0;
+        let shakeX = 0, shakeY = 0;
+
+        // Audio
+        let audioCtx = null;
+        let bgmStep = 0;
+        let isBgmPlaying = false;
+
+        const synthNotes = [220, 261.63, 329.63, 392.00, 440, 523.25];
+        const bassNotes = [110, 110, 87.31, 87.31, 130.81, 130.81, 98.00, 98.00];
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            startBGM();
+        }
+
+        function startBGM() {
+            if (isBgmPlaying || !audioCtx) return;
+            isBgmPlaying = true;
+            bgmStep = 0;
+
+            setInterval(() => {
+                if (!audioCtx || audioCtx.state !== 'running') return;
+                const now = audioCtx.currentTime;
+
+                if (bgmStep % 2 === 0) {
+                    let bassFreq = bassNotes[Math.floor(bgmStep / 4) % bassNotes.length];
+                    let bassOsc = audioCtx.createOscillator();
+                    let bassGain = audioCtx.createGain();
+                    let filter = audioCtx.createBiquadFilter();
+
+                    bassOsc.type = 'sawtooth';
+                    bassOsc.frequency.setValueAtTime(bassFreq, now);
+
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(350, now);
+                    filter.frequency.exponentialRampToValueAtTime(100, now + 0.18);
+
+                    bassOsc.connect(filter);
+                    filter.connect(bassGain);
+                    bassGain.connect(audioCtx.destination);
+
+                    bassGain.gain.setValueAtTime(gameState === 'PLAYING' ? 0.08 : 0.04, now);
+                    bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+                    bassOsc.start(now);
+                    bassOsc.stop(now + 0.18);
+                }
+
+                let noteIdx = (bgmStep * 3) % synthNotes.length;
+                let leadFreq = synthNotes[noteIdx];
+                let leadOsc = audioCtx.createOscillator();
+                let leadGain = audioCtx.createGain();
+
+                leadOsc.type = 'sine';
+                leadOsc.frequency.setValueAtTime(leadFreq, now);
+
+                leadOsc.connect(leadGain);
+                leadGain.connect(audioCtx.destination);
+
+                leadGain.gain.setValueAtTime(gameState === 'PLAYING' ? 0.025 : 0.012, now);
+                leadGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+                leadOsc.start(now);
+                leadOsc.stop(now + 0.1);
+
+                bgmStep = (bgmStep + 1) % 32;
+            }, 125);
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'direction') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'score') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.07);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'wildcard') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.3);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'win') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.15);
+                    osc.frequency.setValueAtTime(659.25, now + 0.3);
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                } else if (type === 'gameover') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(250, now);
+                    osc.frequency.exponentialRampToValueAtTime(30, now + 0.5);
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                }
+            } catch (e) {}
+        }
+
         let player = {
             angle: 0,
             orbitRadius: 100,
             size: 12,
-            speed: 0.05,
-            direction: 1 // 1 o -1
+            speed: 0.045,
+            direction: 1
         };
 
-        // Entidades
+        // Función Matemática de Trayectoria según el Nivel
+        function getTrackPosition(t, level) {
+            if (level === 1) {
+                // Nivel 1: Órbita Circular Clásica
+                return {
+                    x: cx + Math.cos(t) * player.orbitRadius,
+                    y: cy + Math.sin(t) * player.orbitRadius
+                };
+            } else {
+                // Nivel 2+: Serpiente Rectangular en 8 (Lemniscata de Gerono Modificada)
+                let scaleX = Math.min(width, height) * 0.32;
+                let scaleY = Math.min(width, height) * 0.18;
+                
+                // Transición rectangular suavizada (Snake 8)
+                let rawX = Math.sin(t);
+                let squarifiedX = Math.sign(rawX) * Math.pow(Math.abs(rawX), 0.75);
+                let rawY = Math.sin(2 * t) / 1.1;
+
+                return {
+                    x: cx + squarifiedX * scaleX,
+                    y: cy + rawY * scaleY
+                };
+            }
+        }
+
         let entities = [];
         let particles = [];
+        let stars = [];
+        let pulseRings = [];
 
-        // Ajuste de pantalla responsivo
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < 80; i++) {
+                stars.push({
+                    angle: Math.random() * Math.PI * 2,
+                    dist: Math.random() * Math.max(width, height),
+                    size: Math.random() * 2 + 0.5,
+                    alpha: Math.random() * 0.8 + 0.2,
+                    speed: (Math.random() * 0.2 + 0.05)
+                });
+            }
+        }
+
         function resize() {
             width = window.innerWidth;
             height = window.innerHeight;
@@ -136,241 +386,477 @@
             cx = width / 2;
             cy = height / 2;
             
-            // Ajustar radio de órbita para móviles
-            player.orbitRadius = Math.min(width, height) * 0.25;
-            if(player.orbitRadius < 80) player.orbitRadius = 80;
+            player.orbitRadius = Math.min(width, height) * 0.24;
+            if (player.orbitRadius < 85) player.orbitRadius = 85;
+            initStars();
         }
         window.addEventListener('resize', resize);
         resize();
 
-        // Inicializar Juego
-        function initGame() {
+        function updateWildcardUI() {
+            wildcardBtn.innerText = `⚡ COMODÍN (${wildcards})`;
+            wildcardBtn.disabled = (wildcards <= 0);
+        }
+
+        function initGame(level = 1) {
+            initAudio();
+            currentLevel = level;
             score = 0;
-            scoreBoard.innerText = score;
-            gameSpeed = 1;
+            scoreBoard.innerText = `${score} / ${targetScore}`;
+            levelDisplay.innerText = `NIVEL ${currentLevel}`;
+            gameSpeed = 1 + (level - 1) * 0.15;
+            wildcards = 1;
+            shieldTime = 0;
             player.angle = 0;
             player.direction = 1;
             entities = [];
             particles = [];
+            pulseRings = [];
+            cameraScale = 1.0;
+            targetScale = 1.0;
             gameState = 'PLAYING';
             
+            updateWildcardUI();
             uiMenu.classList.add('hidden');
             scoreBoard.classList.remove('hidden');
+            levelDisplay.classList.remove('hidden');
+            wildcardBtn.classList.remove('hidden');
         }
 
-        // Finalizar Juego
+        function checkLevelWin() {
+            if (score >= targetScore && gameState === 'PLAYING') {
+                gameState = 'LEVEL_WIN';
+                playSound('win');
+                triggerShake(15, 20);
+
+                uiMenu.classList.remove('hidden');
+                scoreBoard.classList.add('hidden');
+                wildcardBtn.classList.add('hidden');
+
+                title.innerText = "¡NIVEL COMPLETADO!";
+                title.style.color = "#ffd700";
+                document.getElementById('subtitle').innerText = `¡Conquistaste el Nivel ${currentLevel}!\n¿Listo para la pista Serpiente en 8?`;
+                startBtn.innerText = "SIGUIENTE NIVEL";
+            }
+        }
+
+        function useWildcard(e) {
+            if (e) e.stopPropagation();
+            if (wildcards <= 0 || gameState !== 'PLAYING') return;
+
+            wildcards--;
+            updateWildcardUI();
+            playSound('wildcard');
+            if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+
+            shieldTime = 240;
+
+            for (let i = entities.length - 1; i >= 0; i--) {
+                let ent = entities[i];
+                if (ent.type === 'bad') {
+                    score += 20;
+                    createParticles(ent.x, ent.y, "#00ff66", 12);
+                    entities.splice(i, 1);
+                }
+            }
+            scoreBoard.innerText = `${score} / ${targetScore}`;
+            checkLevelWin();
+            triggerShake(10, 15);
+        }
+
+        wildcardBtn.addEventListener('click', useWildcard);
+
+        function triggerShake(intensity, duration) {
+            shakeTime = duration;
+            shakeX = (Math.random() - 0.5) * intensity;
+            shakeY = (Math.random() - 0.5) * intensity;
+        }
+
         function gameOver() {
             gameState = 'GAMEOVER';
+            playSound('gameover');
+            triggerShake(20, 25);
+            if (navigator.vibrate) navigator.vibrate(250);
+
             uiMenu.classList.remove('hidden');
             scoreBoard.classList.add('hidden');
+            levelDisplay.classList.add('hidden');
+            wildcardBtn.classList.add('hidden');
             title.innerText = "¡CHOQUE!";
             title.style.color = "#ff0055";
-            title.style.textShadow = "0 0 20px #ff0055";
             document.getElementById('subtitle').innerText = "Puntuación Final: " + score;
-            
-            createExplosion(cx + Math.cos(player.angle) * player.orbitRadius, cy + Math.sin(player.angle) * player.orbitRadius, "#00ffff");
+            startBtn.innerText = "REINTENTAR";
         }
 
-        // Controles: Tocar pantalla invierte dirección
         function handleInput(e) {
+            if (e.target === wildcardBtn) return;
             e.preventDefault();
+            initAudio();
             if (gameState === 'PLAYING') {
                 player.direction *= -1;
-                // Efecto de partículas al cambiar dirección
-                createParticles(
-                    cx + Math.cos(player.angle) * player.orbitRadius, 
-                    cy + Math.sin(player.angle) * player.orbitRadius, 
-                    "#ffffff", 5
-                );
+                playSound('direction');
+                if (navigator.vibrate) navigator.vibrate(15);
+
+                let pPos = getTrackPosition(player.angle, currentLevel);
+                createParticles(pPos.x, pPos.y, "#ffffff", 6);
             }
         }
         
-        // Soportar toque y clic
         canvas.addEventListener('mousedown', handleInput);
         canvas.addEventListener('touchstart', handleInput, {passive: false});
 
         startBtn.addEventListener('click', () => {
-            if (gameState !== 'PLAYING') initGame();
+            initAudio();
+            if (gameState === 'LEVEL_WIN') {
+                initGame(currentLevel + 1);
+            } else {
+                initGame(1);
+            }
         });
 
-        // Creador de Entidades (Peligros y Puntos)
         function spawnEntity() {
-            // Aumentar dificultad
-            if (frameCount % 600 === 0) gameSpeed += 0.15;
+            if (frameCount % 550 === 0) gameSpeed += 0.1;
 
-            // Frecuencia de aparición (más rápido según avanza el juego)
-            let spawnRate = Math.max(30, 90 - (gameSpeed * 10));
+            let spawnRate = Math.max(26, 80 - (gameSpeed * 10));
 
             if (frameCount % Math.floor(spawnRate) === 0) {
                 const angle = Math.random() * Math.PI * 2;
-                // Aparecen fuera de la pantalla
-                const distance = Math.max(width, height) + 50; 
-                const isGood = Math.random() < 0.3; // 30% probabilidad de ser punto (amarillo)
+                const distance = Math.max(width, height) * 0.7; 
+                
+                let rand = Math.random();
+                let type = 'bad';
+                let color = '#ff0055';
+                let size = 14;
+
+                if (rand < 0.28) {
+                    type = 'good';
+                    color = '#ffff00';
+                    size = 11;
+                } else if (rand > 0.90) {
+                    type = 'wildcard';
+                    color = '#00ff66';
+                    size = 13;
+                }
 
                 entities.push({
                     x: cx + Math.cos(angle) * distance,
                     y: cy + Math.sin(angle) * distance,
                     angle: angle,
                     distance: distance,
-                    size: isGood ? 10 : 14,
-                    color: isGood ? "#ffff00" : "#ff0055",
-                    type: isGood ? "good" : "bad",
-                    speed: (isGood ? 2 : 2.5) * gameSpeed,
-                    active: true
+                    size: size,
+                    color: color,
+                    type: type,
+                    speed: (type === 'good' ? 2.2 : 2.6) * gameSpeed,
+                    active: true,
+                    suspenseTriggered: false
                 });
             }
         }
 
-        // Efectos Visuales (Partículas)
         function createParticles(x, y, color, count) {
             for (let i = 0; i < count; i++) {
                 particles.push({
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 10,
-                    vy: (Math.random() - 0.5) * 10,
-                    life: 1,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12,
+                    life: 1.0,
                     color: color
                 });
             }
         }
 
         function createExplosion(x, y, color) {
-            createParticles(x, y, color, 30);
+            createParticles(x, y, color, 35);
         }
 
-        // Bucle Principal
         function update() {
+            if (shakeTime > 0) {
+                shakeTime--;
+                shakeX = (Math.random() - 0.5) * 15;
+                shakeY = (Math.random() - 0.5) * 15;
+            } else {
+                shakeX = 0; shakeY = 0;
+            }
+
+            if (shieldTime > 0) shieldTime--;
+
+            stars.forEach(s => {
+                s.angle += s.speed * 0.005;
+            });
+
             if (gameState === 'PLAYING') {
                 frameCount++;
                 
-                // Mover jugador
                 player.angle += player.speed * player.direction * gameSpeed;
-                
-                // Generar entidades
                 spawnEntity();
 
-                // Actualizar entidades
+                if (frameCount % 45 === 0) {
+                    pulseRings.push({ radius: 25, alpha: 0.8 });
+                }
+
+                let isNearDanger = false;
+                let pPos = getTrackPosition(player.angle, currentLevel);
+
                 for (let i = entities.length - 1; i >= 0; i--) {
                     let e = entities[i];
                     
-                    // Mover hacia el centro
                     e.distance -= e.speed;
                     e.x = cx + Math.cos(e.angle) * e.distance;
                     e.y = cy + Math.sin(e.angle) * e.distance;
 
-                    // Posición actual del jugador
-                    let px = cx + Math.cos(player.angle) * player.orbitRadius;
-                    let py = cy + Math.sin(player.angle) * player.orbitRadius;
+                    let distToPlayer = Math.hypot(e.x - pPos.x, e.y - pPos.y);
 
-                    // Colisión
-                    let distToPlayer = Math.hypot(e.x - px, e.y - py);
-                    if (distToPlayer < e.size + player.size) {
-                        if (e.type === 'good') {
-                            score += 10;
-                            scoreBoard.innerText = score;
-                            createParticles(e.x, e.y, e.color, 15);
-                            e.active = false;
-                        } else {
-                            gameOver();
+                    if (e.type === 'bad' && distToPlayer < e.size + player.size + 50 && shieldTime <= 0) {
+                        isNearDanger = true;
+                        if (!e.suspenseTriggered) {
+                            e.suspenseTriggered = true;
+                            playSound('suspense');
+                            if (navigator.vibrate) navigator.vibrate(30);
                         }
                     }
 
-                    // Absorción por el núcleo
+                    if (distToPlayer < e.size + player.size) {
+                        if (e.type === 'good') {
+                            score += 10;
+                            scoreBoard.innerText = `${score} / ${targetScore}`;
+                            playSound('score');
+                            if (navigator.vibrate) navigator.vibrate(20);
+                            createParticles(e.x, e.y, e.color, 16);
+                            e.active = false;
+                            checkLevelWin();
+                        } else if (e.type === 'wildcard') {
+                            score += 50;
+                            wildcards++;
+                            updateWildcardUI();
+                            scoreBoard.innerText = `${score} / ${targetScore}`;
+                            playSound('wildcard');
+                            if (navigator.vibrate) navigator.vibrate(40);
+                            createParticles(e.x, e.y, e.color, 25);
+                            e.active = false;
+                            checkLevelWin();
+                        } else if (e.type === 'bad') {
+                            if (shieldTime > 0) {
+                                score += 20;
+                                scoreBoard.innerText = `${score} / ${targetScore}`;
+                                playSound('score');
+                                createParticles(e.x, e.y, "#00ff66", 18);
+                                e.active = false;
+                                checkLevelWin();
+                            } else {
+                                gameOver();
+                            }
+                        }
+                    }
+
                     if (e.distance < 20) {
                         if (e.type === 'bad' && gameState === 'PLAYING') {
-                            // Efecto núcleo absorbe maldad
-                            createParticles(cx, cy, "#ff0055", 5);
+                            createParticles(cx, cy, "#ff0055", 6);
                         }
                         e.active = false;
                     }
 
                     if (!e.active) entities.splice(i, 1);
                 }
+
+                targetScale = isNearDanger ? 1.35 : 1.0;
             }
 
-            // Actualizar Partículas
+            cameraScale += (targetScale - cameraScale) * 0.12;
+
+            for (let i = pulseRings.length - 1; i >= 0; i--) {
+                let r = pulseRings[i];
+                r.radius += 2.5;
+                r.alpha -= 0.015;
+                if (r.alpha <= 0) pulseRings.splice(i, 1);
+            }
+
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.life -= 0.02;
+                p.life -= 0.025;
                 if (p.life <= 0) particles.splice(i, 1);
             }
         }
 
-        function draw() {
-            // Efecto de rastro (Motion Blur)
-            ctx.fillStyle = 'rgba(5, 5, 16, 0.25)';
+        // Renderizado del Sol Synthwave 3D
+        function drawSynthwaveSun() {
+            let sunX = width - Math.min(width, height) * 0.18;
+            let sunY = Math.min(width, height) * 0.18;
+            let sunRadius = Math.min(width, height) * 0.11;
+
+            ctx.save();
+            
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = '#ff0077';
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff0055';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+            ctx.clip();
+
+            let sunGrad = ctx.createLinearGradient(sunX, sunY - sunRadius, sunX, sunY + sunRadius);
+            sunGrad.addColorStop(0, '#ffff00');
+            sunGrad.addColorStop(0.5, '#ff0055');
+            sunGrad.addColorStop(1, '#660033');
+
+            ctx.fillStyle = sunGrad;
+            ctx.fillRect(sunX - sunRadius, sunY - sunRadius, sunRadius * 2, sunRadius * 2);
+
+            ctx.fillStyle = '#03030a';
+            let numStripes = 6;
+            for (let i = 0; i < numStripes; i++) {
+                let stripeY = sunY + (i / numStripes) * sunRadius * 0.8;
+                let stripeHeight = 1.5 + (i * 1.2);
+                ctx.fillRect(sunX - sunRadius, stripeY, sunRadius * 2, stripeHeight);
+            }
+
+            ctx.restore();
+        }
+
+        function drawBackground() {
+            let grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, Math.max(width, height) * 0.7);
+            grad.addColorStop(0, '#0d0b2b');
+            grad.addColorStop(0.5, '#050516');
+            grad.addColorStop(1, '#020208');
+            ctx.fillStyle = grad;
             ctx.fillRect(0, 0, width, height);
 
-            // Dibujar Núcleo
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.04)';
+            ctx.lineWidth = 1;
+            let gridSize = 60;
+            let offset = (frameCount * 0.5) % gridSize;
+
+            for (let x = 0; x < width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = offset; y < height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+
+            drawSynthwaveSun();
+
+            stars.forEach(s => {
+                let sx = cx + Math.cos(s.angle) * s.dist;
+                let sy = cy + Math.sin(s.angle) * s.dist;
+                ctx.fillStyle = `rgba(160, 160, 255, ${s.alpha})`;
+                ctx.beginPath();
+                ctx.arc(sx, sy, s.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Dibujar Pista Activa según el Nivel
+        function drawTrack() {
             ctx.beginPath();
-            ctx.arc(cx, cy, 25 + Math.sin(frameCount * 0.1) * 5, 0, Math.PI * 2);
-            ctx.fillStyle = '#000';
+            let samples = 150;
+            for (let i = 0; i <= samples; i++) {
+                let t = (i / samples) * Math.PI * 2;
+                let pt = getTrackPosition(t, currentLevel);
+                if (i === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = currentLevel === 1 ? 'rgba(0, 255, 255, 0.25)' : 'rgba(255, 0, 255, 0.35)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function draw() {
+            drawBackground();
+
+            ctx.save();
+            ctx.translate(cx + shakeX, cy + shakeY);
+            ctx.scale(cameraScale, cameraScale);
+            ctx.translate(-cx, -cy);
+
+            pulseRings.forEach(r => {
+                ctx.beginPath();
+                ctx.arc(cx, cy, r.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(0, 255, 255, ${r.alpha * 0.4})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // Dibujar Pista (Circular para Nivel 1, Serpiente en 8 para Nivel 2)
+            drawTrack();
+
+            let corePulse = 24 + Math.sin(frameCount * 0.1) * 4;
+            ctx.beginPath();
+            ctx.arc(cx, cy, corePulse, 0, Math.PI * 2);
+            ctx.fillStyle = '#050510';
             ctx.fill();
             ctx.lineWidth = 3;
             ctx.strokeStyle = '#00ffff';
-            ctx.stroke();
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = 25;
             ctx.shadowColor = '#00ffff';
             ctx.stroke();
-            ctx.shadowBlur = 0; // Reset
+            ctx.shadowBlur = 0;
 
-            // Dibujar Entidades
             entities.forEach(e => {
                 ctx.beginPath();
                 ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
                 ctx.fillStyle = e.color;
                 ctx.fill();
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = 18;
                 ctx.shadowColor = e.color;
                 ctx.fill();
                 ctx.shadowBlur = 0;
             });
 
-            // Dibujar Jugador
             if (gameState !== 'GAMEOVER') {
-                let px = cx + Math.cos(player.angle) * player.orbitRadius;
-                let py = cy + Math.sin(player.angle) * player.orbitRadius;
+                let pPos = getTrackPosition(player.angle, currentLevel);
                 
+                if (shieldTime > 0) {
+                    ctx.beginPath();
+                    ctx.arc(pPos.x, pPos.y, player.size + 8 + Math.sin(frameCount * 0.3) * 3, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#00ff66';
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#00ff66';
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                }
+
                 ctx.beginPath();
-                ctx.arc(px, py, player.size, 0, Math.PI * 2);
-                ctx.fillStyle = '#00ffff';
+                ctx.arc(pPos.x, pPos.y, player.size, 0, Math.PI * 2);
+                ctx.fillStyle = shieldTime > 0 ? '#00ff66' : '#00ffff';
                 ctx.fill();
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = '#00ffff';
+                ctx.shadowBlur = 22;
+                ctx.shadowColor = shieldTime > 0 ? '#00ff66' : '#00ffff';
                 ctx.fill();
                 ctx.shadowBlur = 0;
-
-                // Línea de órbita (opcional, ayuda visual)
-                ctx.beginPath();
-                ctx.arc(cx, cy, player.orbitRadius, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
             }
 
-            // Dibujar Partículas
             particles.forEach(p => {
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, 3 * p.life, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, 3.5 * p.life, 0, Math.PI * 2);
                 ctx.fillStyle = p.color;
                 ctx.globalAlpha = p.life;
                 ctx.fill();
             });
-            ctx.globalAlpha = 1; // Reset
+            ctx.globalAlpha = 1;
+
+            ctx.restore();
         }
 
         function gameLoop() {
             update();
             draw();
-            animationId = requestAnimationFrame(gameLoop);
+            requestAnimationFrame(gameLoop);
         }
 
-        // Iniciar rastro en el menú
         gameLoop();
-
     </script>
 </body>
 </html>
